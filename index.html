@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionAI — CNN Image Classifier</title>
+    <meta name="description" content="Instant client-side image recognition using a trained CNN model in your browser. Fully private and fast.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- TensorFlow.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+</head>
+<body>
+    <div class="background-glows">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <main class="app-container">
+        <!-- Hero Header Section -->
+        <header class="hero-section">
+            <div class="hero-badge">CNN POWERED IMAGE RECOGNITION</div>
+            <h1 class="hero-title">Meet <span class="gradient-text">VisionAI</span></h1>
+            <p class="hero-description">
+                Upload an image and let the trained CNN model identify whether it contains an <strong>aeroplane</strong>, a <strong>car</strong>, or a <strong>bird</strong>.
+            </p>
+            <div class="feature-list">
+                <span class="feature-item">⚡ Instant Prediction</span>
+                <span class="feature-item">🧠 In-Browser CNN</span>
+                <span class="feature-item">🔒 100% Private</span>
+            </div>
+        </header>
+
+        <!-- Main Work Area -->
+        <div class="dashboard-grid">
+            <!-- Left Card: Upload & Controls -->
+            <section class="card" id="upload-card">
+                <div class="card-header">
+                    <h2 class="card-title">Upload Image</h2>
+                    <p class="card-description">Select or drag & drop a clear JPG, JPEG, or PNG image.</p>
+                </div>
+                
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    <div class="upload-content" id="upload-content-placeholder">
+                        <div class="upload-icon">📤</div>
+                        <p class="upload-text">Drag and drop your image here or <span class="browse-link">browse</span></p>
+                        <p class="upload-hint">Supports JPG, JPEG, PNG</p>
+                    </div>
+                    <div class="preview-container" id="preview-container" style="display: none;">
+                        <img id="image-preview" alt="Upload preview">
+                    </div>
+                </div>
+
+                <div class="controls-row">
+                    <button class="btn btn-primary" id="analyze-btn" disabled>✨ Analyze Image</button>
+                    <button class="btn btn-secondary" id="clear-btn">Clear</button>
+                </div>
+            </section>
+
+            <!-- Right Card: Results -->
+            <section class="card" id="result-card">
+                <div class="card-header">
+                    <h2 class="card-title">Prediction Results</h2>
+                    <p class="card-description">Model inference scores and confidence metrics.</p>
+                </div>
+
+                <!-- Empty state when no image has been processed yet -->
+                <div class="empty-state" id="results-empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3 class="empty-state-title">Ready for Analysis</h3>
+                    <p class="empty-state-text">Upload an image on the left and click "Analyze Image" to see the CNN predictions.</p>
+                </div>
+
+                <!-- Loading Spinner State -->
+                <div class="loading-state" id="results-loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Running CNN inference in-browser...</p>
+                </div>
+
+                <!-- Results Output State -->
+                <div class="results-output" id="results-output-container" style="display: none;">
+                    <!-- Prediction Badge -->
+                    <div class="prediction-badge" id="prediction-badge">
+                        <div class="badge-icon" id="badge-icon">✈️</div>
+                        <div class="badge-details">
+                            <span class="badge-label">PREDICTED CLASS</span>
+                            <h3 class="badge-value" id="predicted-class-name">Aeroplane</h3>
+                            <span class="badge-confidence" id="predicted-confidence">98.5% confidence</span>
+                        </div>
+                    </div>
+
+                    <!-- Probability Bars Container -->
+                    <div class="probability-container">
+                        <h4 class="probability-section-title">DETAILED PROBABILITY DISTRIBUTION</h4>
+                        
+                        <!-- Aeroplane bar -->
+                        <div class="prob-row">
+                            <div class="prob-info">
+                                <span class="prob-label">✈️ Aeroplane</span>
+                                <span class="prob-pct" id="pct-aeroplane">0%</span>
+                            </div>
+                            <div class="prob-track">
+                                <div class="prob-fill" id="fill-aeroplane" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Car bar -->
+                        <div class="prob-row">
+                            <div class="prob-info">
+                                <span class="prob-label">🚗 Car</span>
+                                <span class="prob-pct" id="pct-car">0%</span>
+                            </div>
+                            <div class="prob-track">
+                                <div class="prob-fill" id="fill-car" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Bird bar -->
+                        <div class="prob-row">
+                            <div class="prob-info">
+                                <span class="prob-label">🐦 Bird</span>
+                                <span class="prob-pct" id="pct-bird">0%</span>
+                            </div>
+                            <div class="prob-track">
+                                <div class="prob-fill" id="fill-bird" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>VisionAI — Client-Side Deep Learning Model</p>
+    </footer>
+
+    <!-- Custom Script -->
+    <script src="app.js"></script>
+</body>
+</html>

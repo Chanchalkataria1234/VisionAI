@@ -1,0 +1,10 @@
+# .gitignore
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+models/
+patched_model/
+.git/
+*.pyc
+*.pyo
+*.pyd
